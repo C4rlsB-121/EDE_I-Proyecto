@@ -1,0 +1,294 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+
+\usepackage[backend=biber, style=numeric]{biblatex}
+\addbibresource{ref.bib}	
+
+\usepackage[margin=1in]{geometry}		% Margen
+\usepackage{booktabs}					% Tablas
+\usepackage{graphicx}       			% Insertar imgs
+\usepackage[style=ddmmyyyy]{datetime2}       % Fijar formato día
+\usepackage{amsthm, amsfonts, amsmath, dsfont, amssymb}         % For Math
+\usepackage{fancyhdr}       % For fancy header/ footer
+\usepackage{cancel}         % Cancelar expresiones
+\usepackage[ruled,vlined]{algorithm2e} % To write algorithms
+\usepackage{tikz}          % Visuales
+\usetikzlibrary{shapes.geometric} % Más figuras
+
+\usepackage{xcolor} % Personalizar color
+
+\usepackage{eso-pic} % Fondo portada
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+% info basica
+\newcommand{\myname}{- Carlos Gabriel Barrera Casasola,\\ - Diego Marquez Franco,\\ - Pablo Rogelio Ramírez Alferes}
+\newcommand{\myclass}{Un caso degenerado del modelo CIR/Feller}
+\newcommand{\mytitle}{Proyecto: Ecuaciones Diferenciales Estocásticas}
+% \newcomand{\mydate}{<Date>}
+
+\title{\mytitle}
+\author{\myname}
+% \date{\mydate}
+%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+% Set up fancy header/footer
+\pagestyle{fancy}
+\fancyhead[LO,L]{ \textbf{\large{\myclass}} \\  \textbf{\textit{\mytitle}}}
+\fancyhead[CO,C]{ \\ \hspace{6.0cm} }
+\fancyhead[RO,R]{\textbf{\textit{}} \\ \textit{\DTMtoday}} % \DTMtoday for today, \mydate for custom date
+\fancyfoot[LO,L]{}
+\fancyfoot[CO,C]{\thepage}
+\fancyfoot[RO,R]{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\setlength{\headsep}{1.2cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%% Define all premade object %%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%% Triangulo para enumerar
+\newcommand*\mytriangle[1]{\hspace*{-0pt}\raisebox{0.8ex}{\tikz[baseline=(char.base)]{
+			\node[shape=regular polygon, regular polygon sides=5, fill=green!65!gray!40!white, inner sep=0pt, rotate=-90, scale=1.15, anchor=base] (char) {#1};}}
+		}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% Portada  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\marcaDeAgua}{%
+	\begin{tikzpicture}[remember picture, overlay]
+		\node at (current page.center) {%
+			\begin{tikzpicture}
+				% Espiral mu
+				\foreach \t in {0,12,...,1080} {
+					\pgfmathsetmacro{\r}{0.022*\t}
+					\pgfmathsetmacro{\x}{\r*cos(\t)}
+					\pgfmathsetmacro{\y}{\r*sin(\t)}
+					\pgfmathsetmacro{\s}{0.25+0.011*\t}
+					\node[scale=\s, gray!50!green!25!white!55, rotate=\t] at (\x,\y) {$\mu$};
+				}
+				% sigma
+				\foreach \t in {0,12,...,1080} {
+					\pgfmathsetmacro{\r}{0.02*\t}
+					\pgfmathsetmacro{\ang}{\t+180} % Para que no quede al revez
+					\pgfmathsetmacro{\x}{\r*cos(\ang)}
+					\pgfmathsetmacro{\y}{\r*sin(\ang)}
+					\pgfmathsetmacro{\s}{0.25+0.011*\t}
+					\node[scale=\s, gray!50!green!25!white!55, rotate=\ang] at (\x,\y) {$\sigma$};
+				}
+			\end{tikzpicture}%
+		};
+	\end{tikzpicture}%
+}
+\AddToShipoutPictureBG*{\marcaDeAgua}
+
+
+% Para referenciar
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=magenta,      
+	urlcolor=cyan,
+	citecolor=blue
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Portada
+	\begin{titlepage}
+		\centering
+		\vspace*{3cm}
+		
+		{\Huge \bfseries \myclass \par}
+		\vspace{2cm}
+		
+		{\Large \mytitle \par}
+		\vspace{4cm}
+		
+		{\large \myname \par}
+		\vspace{0.5cm}
+		
+		{\large \DTMtoday \par}
+		
+		\vfill
+		
+	\end{titlepage}
+	
+%%%%%%%%%%%%%% Trabajo
+
+
+\section*{La ecuación}
+Supongamos que $X_t$ es una concentración de elementos de algún fenómeno que decrece con el tiempo. Ejemplo: Decaimiento radiactivo o disolución de un fármaco..
+
+En un intervalo de tiempo $\Delta t$ una fracción $\lambda \Delta t$ $X_t$ desaparece. 
+Entonces $$\Delta \approx -\lambda X_t \Delta t$$
+
+Agregando un factor de ruido, digamos que un elemento de lo que representa $X_t$ tiene una probabilidad $\lambda \Delta t$ de desaparecer. Así, $\mathbb{E}[\Delta X_t] = -\lambda X_t \Delta t $ y $\operatorname{Var}(\Delta X_t) = \lambda X_t \Delta t.$
+Entonces  $$\sqrt{\operatorname{Var}(\Delta X_t)} =  \sqrt{\lambda X_t \Delta t} = \sqrt{\lambda X_t}$$
+
+Suponiendo cierta normalidad podemos ajustar el termino del ruido al incremento de un browniano $\Delta W_t$ con varianza adecuada, así
+$$\Delta X_t = - \lambda X_t \Delta t + \sqrt{ \lambda X_t} \Delta W_t$$
+
+Tomando el limite $\Delta t \to 0$ tenemos la ecuación con la que trabajaremos.
+
+\begin{equation}
+	dX_t = -\lambda X_t dt + \sqrt{\lambda X_t } dW_t, \quad \lambda >0
+	\label{eq:mainEq}
+\end{equation}
+
+
+Que es un caso particular del modelo CIR con $a=\lambda\ b= 0\ \sigma=\sqrt{\lambda}$ y de la ecuación de Feller con $[params]$.
+
+\section*{Ecuaciones relacionadas}
+Observamos que nuestra ecuación \ref{eq:mainEq} es un caso particular y degenerado del modelo \emph{CIR} y de la ecuación de $Feller$.
+
+\subsection*{Cox-Inderson-Ross (CIR)}
+Propuesto en 1985, es un modelo para tasas de interés no negativas. 
+
+Está dado por la EDE
+$$dX_t = a(b-X_t)dt + \sigma \sqrt{X_t} dW_t, \quad b\in \mathbb{R},\  a,\sigma>0$$
+
+En comparación, la ecuación \ref{eq:mainEq} es el caso donde $a = \lambda, b = 0, \sigma = \sqrt{\lambda}.$
+
+
+\subsection*{Ecuación de Feller}
+Con una gran variedad de aplicaciones por su deriva lineal y difusión dependiente del estado se ha usado en neurobiología, representación de poblaciones y mercados financieros \cite{MasoliverPerello2012}.
+
+Tiene la expresión
+$$dX_t = (-\alpha X_t + \beta) dt + k \sqrt{X_t}dW_t,\quad \beta \in \mathbb{R}, \alpha, k >0.$$
+
+
+Es equivalente al CIR salvo la caracterización de sus parámetros.
+
+La ecuación \ref{eq:mainEq} es un caso particular con $\beta = 0, \alpha = \lambda, k = \sqrt{\lambda}.$
+
+
+\section*{Análisis de la ecuación}
+Tenemos que $b(t,X_t) = -\lambda X_t, \ \sigma(t,X_t)= \sqrt{\lambda X_t} $
+
+\subsection*{Existencia y unicidad}
+Veamos si cumple con la condición de Lipschitz y con crecimiento lineal. El tiempo no da problema así que centrémonos en las espaciales.
+
+\subsubsection*{Condición de Lipschitz}
+Sean $x,y \geq 0.$
+\begin{align*}
+	|b(t,x) - b(t,y)|^2 + |\sigma(t, x) - \sigma(t,y)|^2 &= |-\lambda x + \lambda y|^2 + |\sqrt{\lambda x} - \sqrt{\lambda y}|^2 \\
+	& = \lambda^2|x-y|^2 + \lambda|\sqrt{x} - \sqrt{y}|^2
+\end{align*}
+
+El primer término, correspondiente a $b(t,X_t)$ ya está acotado de la forma deseada, $b$ es Lipschitz. Sin embargo, ¿qué hay de $\sigma(t, X_t)$?\\
+
+Tenemos que $$\frac{d\sigma}{dt} = \frac{\sqrt{\lambda}}{2\sqrt{x}} \xrightarrow[x\to 0]{} \infty$$
+
+Por lo que en 0, los incrementos $|\sigma(t,x)-\sigma(t,y)|$ no pueden ser acotados por diferencias lineales $|x-y|.$
+
+Sin embargo, para $\varepsilon>0$ y $x,y\leq 0$
+\begin{align*}
+	|\sigma(t,x) - \sigma(t, y)|^2 &= \lambda|\sqrt{x}-\sqrt{y}|^2 \\
+	&= \lambda (\frac{|\sqrt{x}-\sqrt{y}|(\sqrt{x}+\sqrt{y})}{\sqrt{x}+\sqrt{y}})^2 \\
+	&= \lambda (\frac{|x-y|}{\sqrt{x} + \sqrt{y}})^2
+\end{align*}
+Ahora, $0<\varepsilon \leq x,y\ \implies 0< 2\sqrt{\varepsilon} \leq \sqrt{x} + \sqrt{y}$
+
+Tomando los inversos se sigue que
+\begin{align*}
+	|\sigma(t,x) - \sigma(t, y)|^2 & \leq  \lambda (\frac{|x-y|}{2\sqrt{\varepsilon}})^2\\
+	&= \frac{\lambda}{4\varepsilon} |x-y|^2
+\end{align*}
+
+Habiendo acotad ambos términos de la manera deseada, nuestra ecuación cumple la condición de Lipschitz en $[\varepsilon, \infty)\ \forall \varepsilon > 0.$
+
+
+\subsubsection*{Condición de crecimiento lineal}
+Sea $x\geq 0$.
+
+\begin{align*}
+	|b(t,x)|^2 + |\sigma(t,x)|^2 &= |-\lambda x|^2 +|\sqrt{- \lambda x}|^2\\
+	&= \lambda^2 |x|^2 + \lambda x
+\end{align*}
+¿Existirá algún $K$ tal que $\lambda^2 x^2 + \lambda x \leq K(1+x^2)$?\quad  (Recordamos que $X_t \geq 0$)
+
+Esto es equivalente a si $h(x) = \frac{\lambda^2 x^2 + \lambda x}{1+x^2} \leq K.$\\
+
+Desarrollamos buscando un máximo de $h$ positivo.
+\begin{align*}
+	h(x) & = \frac{\lambda^2 x^2 + \lambda x}{1+x^2} + \frac{\lambda^2}{1+x^2} - \frac{\lambda^2}{1+x^2}\\
+	 &= \frac{\lambda^2 (1+x^2) + \lambda x}{1+x^2} - \frac{\lambda^2}{1-x^2}\\
+	 &= \lambda^2 + \frac{\lambda x}{1+x^2} - \frac{\lambda^2}{1+x^2}
+\end{align*}
+
+Así derivando e igualando a 0
+\begin{align*}
+	0 = h'(x)& = \lambda \frac{1+x^2 -2x^2}{(1+x^2)^2} - \lambda^2 \frac{-2x}{(1+x^2)^2}\\
+	&= \frac{\lambda (1-x^2)}{(1+x^2)^2} + \frac{\lambda^2 2x}{(1+x^2)^2}
+\end{align*}
+
+Que ocurre si y solo si
+\begin{align*}
+	0 & =-[ (1-x^2) +2 \lambda x]\\
+	&=  x^2 -2\lambda x - 1
+\end{align*}
+
+Resolviendo por la formula general de segundo grado
+$$x^* = \lambda \pm \sqrt{\lambda^2 +1}  $$
+
+Pero $\sqrt{\lambda^2 +1 } > \sqrt{\lambda^2} = |\lambda| = \lambda$
+
+Por lo que tomamos $x^*_+ = \lambda + \sqrt{\lambda^2 +1}$ para que $x^*_+$ esté donde la ecuación diferencial estocástica está definida.
+
+Ahora veamos que en $x^*_+$ hay un máximo.
+
+Nos fijamos en los signos de la derivada.
+\begin{align*}
+	h'(x) &= \lambda \frac{1+x^2 -2x^2}{(1+x^2)^2} - \lambda^2 \frac{-2x}{(1+x^2)^2} \\
+	& =\lambda \frac{1-x^2 + 2 \lambda x}{(1+x^2)^2}
+\end{align*}
+
+El signo del denominador siempre es positivo.
+
+Para el numerador notamos que se trata de una parábola, como $\lambda > 0$, abre hacia abajo pues el signo del término de segundo grado es negativo. Y además, el signo es positivo en $(x^*_-, x^*_+)$
+
+De esta forma $sgn(h)>0$ en $(x^*_-, x^*_+)$ y $sgn(h)<0$ en $(x^*_+,\infty).$
+De esta forma es un máximo. Pero ¿es global? recordemos que necesitemos esa cota para todo $x\geq$.\\
+
+Por el método llevado a cabo, $x^*_+$ es el único máximo local de $h$, que es continua, $h(0) = 0,\ \lim_{x\to \infty} = \lambda^2$ y además $h$ es creciente en $[0,x^*_+]$ y decreciente para $x>x^*_+$, por lo tanto $K = h(x^*_+)>0$ es el máximo en $[0,\infty)$ y por ende, sirve como nuestra cota.\\
+
+Hemos concluido que se cumple la condición de crecimiento.
+
+
+
+\subsubsection*{Alternativas para existencia y unicidad}
+ver \cite{YamadaWatanabe1971}
+
+\subsection*{Solución}
+Podemos usar Lamperti, en particular usando $Y_t = \frac{2}{\sqrt{\lambda}}\sqrt{X_t}$
+
+\begin{align*}
+	dY_t &= \left(-\frac{\lambda}{\sqrt{\lambda}}\sqrt{X_t} + \frac{1}{2}\lambda X_t \cdot \left(-\frac{1}{2\sqrt{\lambda}}X_t^{-3/2}\right)\right)dt + dW_t \\
+	&= \left(-\sqrt{\lambda}\sqrt{X_t} - \frac{\sqrt{\lambda}}{4\sqrt{X_t}}\right)dt + dW_t \\
+	&= \left(-\frac{\lambda}{2}Y_t - \frac{1}{2Y_t}\right)dt + dW_t
+\end{align*}
+
+Ahora hay que intentar resolver esta ecuación con ruido aditivo.
+
+[Tal vez \cite{MasoliverPerello2012} pueda ser útil.]
+
+	
+
+\printbibliography	
+
+\end{document}
